@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Incozent Technologies</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        
+        /* Glassmorphism */
+        .glass-nav { background: rgba(255, 255, 255, 0.90); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.3); }
+        .modal-overlay { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(6px); transition: opacity 0.3s ease; }
+        
+        /* --- CUSTOM ANIMATIONS --- */
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.5, 0, 0, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float { animation: float 4s ease-in-out infinite; }
+
+        .hero-animate { opacity: 0; animation: heroFadeIn 0.8s forwards cubic-bezier(0.5, 0, 0, 1); }
+        .hero-delay-1 { animation-delay: 0.1s; }
+        .hero-delay-2 { animation-delay: 0.3s; }
+        .hero-delay-3 { animation-delay: 0.5s; }
+
+        @keyframes heroFadeIn {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        html { scroll-padding-top: 80px; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+
+    <nav class="fixed top-0 w-full glass-nav z-50 shadow-sm h-20 transition-all duration-300" id="main-nav">
+        <div class="container mx-auto px-6 h-full flex justify-between items-center">
+            
+            <div class="flex items-center gap-2 cursor-pointer group" onclick="showLandingPage()">
+                <div class="bg-blue-600 text-white p-2 rounded-lg transform group-hover:rotate-12 transition duration-300"><i data-lucide="code-2"></i></div>
+                <span class="text-xl font-bold text-gray-900 tracking-tight">Incozent</span>
+            </div>
+
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#home" onclick="showLandingPage()" class="relative font-medium text-gray-600 hover:text-blue-600 transition duration-300 group">Home<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span></a>
+                <a href="#about" onclick="showLandingPage()" class="relative font-medium text-gray-600 hover:text-blue-600 transition duration-300 group">About<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span></a>
+                <a href="#life" onclick="showLandingPage()" class="relative font-medium text-gray-600 hover:text-blue-600 transition duration-300 group">Culture<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span></a>
+                <a href="#programs" onclick="showLandingPage()" class="relative font-medium text-gray-600 hover:text-blue-600 transition duration-300 group">Programs<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span></a>
+                <a href="#contact" onclick="showLandingPage()" class="relative font-medium text-gray-600 hover:text-blue-600 transition duration-300 group">Contact<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span></a>
+            </div>
+
+            <div class="hidden md:flex items-center gap-4">
+                <button onclick="navigateToApp('apply')" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-medium shadow-lg shadow-blue-500/30 transition transform hover:bg-blue-700 hover:-translate-y-0.5 active:scale-95">
+                    Apply Now
+                </button>
+
+                <button id="nav-signin-btn" onclick="openStudentLogin()" class="text-gray-600 hover:text-blue-600 font-medium transition hover:scale-105">
+                    Sign In
+                </button>
+
+                <div id="nav-user-profile" class="relative hidden">
+                    <button onclick="toggleUserDropdown()" class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700 font-bold flex items-center justify-center hover:shadow-md transition transform active:scale-90" id="user-avatar-letter">
+                        </button>
+
+                    <div id="user-dropdown-menu" class="hidden absolute right-0 mt-3 w-64 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50 origin-top-right animate-[slideUpFade_0.2s_ease-out]">
+                        <div class="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+                            <p class="text-sm font-bold text-gray-900" id="dropdown-name">Student Name</p>
+                            <p class="text-xs text-gray-500 truncate" id="dropdown-email">student@example.com</p>
+                        </div>
+                        <div class="py-1">
+                            <button onclick="navigateToApp('profile')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-3 transition">
+                                <i data-lucide="user" class="w-4 h-4"></i> My Profile
+                            </button>
+                            <button onclick="navigateToApp('dashboard')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-3 transition">
+                                <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                            </button>
+                            <button onclick="navigateToApp('applied')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-3 transition">
+                                <i data-lucide="file-check" class="w-4 h-4"></i> Applied Internships
+                            </button>
+                            <button onclick="navigateToApp('completed')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-3 transition">
+                                <i data-lucide="award" class="w-4 h-4"></i> Completed Internships
+                            </button>
+                        </div>
+                        <div class="border-t border-gray-100 pt-1">
+                            <button onclick="logout()" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition">
+                                <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="md:hidden" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                <i data-lucide="menu"></i>
+            </button>
+        </div>
+
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t p-4 flex flex-col space-y-4 shadow-lg mt-20 fixed w-full z-30 animate-[slideUpFade_0.3s_ease-out]">
+            <a href="#home" onclick="showLandingPage(); document.getElementById('mobile-menu').classList.add('hidden')">Home</a>
+            <a href="#about" onclick="showLandingPage(); document.getElementById('mobile-menu').classList.add('hidden')">About</a>
+            <a href="#life" onclick="showLandingPage(); document.getElementById('mobile-menu').classList.add('hidden')">Culture</a>
+            <button onclick="openStudentLogin()">Sign In / Login</button>
+        </div>
+    </nav>
+
+    <div id="landing-page-container" class="view-section active pt-20">
+        <section id="home" class="relative min-h-screen flex items-center overflow-hidden">
+            <div class="absolute inset-0 z-0">
+                <img src="office.jpg" class="w-full h-full object-cover animate-[float_10s_infinite_alternate]" style="transform: scale(1.1);" alt="Office">
+                <div class="absolute inset-0 bg-blue-900/85"></div>
+            </div>
+            
+            <div class="relative z-10 container mx-auto px-6 text-center text-white">
+                <span class="hero-animate bg-white/10 backdrop-blur-md border border-white/20 text-blue-200 px-5 py-2 rounded-full text-sm font-bold uppercase tracking-wide mb-8 inline-block shadow-xl">
+                    Virtual Internship Program 2025
+                </span>
+                <h1 class="hero-animate hero-delay-1 text-5xl md:text-7xl font-extrabold mb-8 leading-tight drop-shadow-2xl">
+                    Build Your Career <br/><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-purple-300">From Anywhere</span>
+                </h1>
+                <p class="hero-animate hero-delay-2 text-xl md:text-2xl text-blue-100 mb-12 max-w-3xl mx-auto font-light leading-relaxed">
+                    Gain real work experience, build industry-level projects, and get certified by Incozent Technologies—all from your home.
+                </p>
+                <div class="hero-animate hero-delay-3 flex flex-col sm:flex-row justify-center gap-5">
+                    <a href="#programs" class="bg-white text-blue-900 px-8 py-4 rounded-xl font-bold hover:bg-gray-100 shadow-xl transition transform hover:-translate-y-1 hover:scale-105 active:scale-95">
+                        Browse Opportunities
+                    </a>
+                    <button onclick="navigateToApp('apply')" class="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-500 shadow-xl shadow-blue-500/30 transition transform hover:-translate-y-1 hover:scale-105 active:scale-95 border border-blue-400/50">
+                        Apply Now
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="py-24 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="grid md:grid-cols-2 gap-16 items-center">
+                    <div class="relative reveal">
+                        <div class="absolute -top-6 -left-6 w-32 h-32 bg-blue-100 rounded-full z-0 animate-pulse"></div>
+                        <img src="coding.jpg" class="relative z-10 rounded-2xl shadow-2xl object-cover h-[500px] w-full transform transition hover:scale-[1.02] duration-500" alt="Team">
+                        <div class="absolute -bottom-6 -right-6 bg-white p-6 rounded-xl shadow-xl z-20 border border-gray-100 max-w-xs animate-float">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="bg-green-100 p-2 rounded-full text-green-600"><i data-lucide="users"></i></div>
+                                <span class="font-bold text-lg">5000+ Interns</span>
+                            </div>
+                            <p class="text-sm text-gray-500">Successfully trained and placed.</p>
+                        </div>
+                    </div>
+                    <div class="reveal">
+                        <h2 class="text-sm font-bold text-blue-600 uppercase tracking-widest mb-2">Who We Are</h2>
+                        <h3 class="text-4xl font-bold text-gray-900 mb-6">Bridging the Gap Between <br/>Academia & Industry</h3>
+                        <p class="text-gray-600 text-lg mb-6 leading-relaxed">
+                            Incozent Technologies was founded with a single mission: To make high-quality industrial training accessible to every student.
+                        </p>
+                        <div class="grid grid-cols-2 gap-6 mt-8">
+                            <div class="border-l-4 border-blue-600 pl-4 hover:border-blue-400 transition-colors">
+                                <h4 class="font-bold text-xl mb-1">Our Mission</h4>
+                                <p class="text-sm text-gray-500">Empower 1M students by 2030.</p>
+                            </div>
+                            <div class="border-l-4 border-purple-600 pl-4 hover:border-purple-400 transition-colors">
+                                <h4 class="font-bold text-xl mb-1">Our Vision</h4>
+                                <p class="text-sm text-gray-500">Job-ready graduates, everywhere.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="life" class="py-24 bg-gray-50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16 reveal">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">Life at Incozent</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">Even remotely, we maintain a vibrant, professional culture.</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="md:col-span-2 relative group overflow-hidden rounded-2xl shadow-lg h-80 reveal">
+                        <img src="meeting.jpg" class="w-full h-full object-cover transition transform duration-700 group-hover:scale-110" alt="Meeting">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8 translate-y-4 group-hover:translate-y-0 transition duration-500">
+                            <h3 class="text-white text-2xl font-bold mb-2">Collaborative Meetings</h3>
+                        </div>
+                    </div>
+                    <div class="relative group overflow-hidden rounded-2xl shadow-lg h-80 reveal">
+                        <img src="viewofnewwork.jpg" class="w-full h-full object-cover transition transform duration-700 group-hover:scale-110" alt="Building">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8 translate-y-4 group-hover:translate-y-0 transition duration-500">
+                            <h3 class="text-white text-2xl font-bold mb-2">Global Presence</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8 mt-8">
+                     <div class="relative group overflow-hidden rounded-2xl shadow-lg h-80 reveal">
+                        <img src="office1.jpg" class="w-full h-full object-cover transition transform duration-700 group-hover:scale-110" alt="Desk">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8 translate-y-4 group-hover:translate-y-0 transition duration-500">
+                            <h3 class="text-white text-2xl font-bold mb-2">Professional Workflow</h3>
+                        </div>
+                    </div>
+                    <div class="bg-blue-600 rounded-2xl p-8 md:p-12 text-white flex flex-col justify-center reveal shadow-2xl shadow-blue-500/30">
+                        <h3 class="text-3xl font-bold mb-4">Ready to join us?</h3>
+                        <p class="text-blue-100 mb-8 text-lg">We are looking for passionate individuals who are ready to learn and grow.</p>
+                        <button onclick="navigateToApp('apply')" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-bold hover:bg-blue-50 hover:scale-105 active:scale-95 transition w-fit">
+                            Start Your Application
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="programs" class="py-24 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-12 reveal">
+                    <div>
+                        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Internship Opportunities</h2>
+                        <p class="text-gray-600 max-w-xl">Choose a domain that sparks your interest.</p>
+                    </div>
+                    <button class="hidden md:block text-blue-600 font-semibold hover:underline hover:text-blue-700 transition">View All Programs &rarr;</button>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8" id="programs-container"></div>
+            </div>
+        </section>
+
+        <section id="contact" class="py-24 bg-gray-50 border-t border-gray-200">
+            <div class="container mx-auto px-6">
+                <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row reveal">
+                    <div class="bg-blue-900 text-white p-12 md:w-2/5 flex flex-col justify-between relative overflow-hidden">
+                        <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-blue-800 rounded-full opacity-50 blur-2xl"></div>
+                        <div class="relative z-10">
+                            <h3 class="text-2xl font-bold mb-6">Contact Us</h3>
+                            <p class="text-blue-200 mb-8">Have questions? We're here to help.</p>
+                            <div class="space-y-6">
+                                <a href="mailto:support@incozent.com" class="flex items-center gap-4 hover:translate-x-2 transition duration-300 group">
+                                    <i data-lucide="mail" class="text-blue-400 group-hover:text-white transition"></i>
+                                    <span class="group-hover:text-blue-200 transition">support@incozent.com</span>
+                                </a>
+                                
+                                <div class="flex items-center gap-4 hover:translate-x-2 transition duration-300"><i data-lucide="phone" class="text-blue-400"></i><span>+91 98765 43210</span></div>
+                                <div class="flex items-center gap-4 hover:translate-x-2 transition duration-300"><i data-lucide="map-pin" class="text-blue-400"></i><span>Cyber City, Hyderabad</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-12 md:w-3/5">
+                        <form onsubmit="event.preventDefault(); alert('Message sent!');">
+                            <div class="mb-6 group"><label class="block text-sm font-bold text-gray-700 mb-2">Name</label><input type="text" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="John Doe"></div>
+                            <div class="mb-6 group"><label class="block text-sm font-bold text-gray-700 mb-2">Email</label><input type="email" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="john@example.com"></div>
+                            <div class="mb-6 group"><label class="block text-sm font-bold text-gray-700 mb-2">Message</label><textarea rows="3" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="How can we help?"></textarea></div>
+                            <button class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 active:scale-95 transition">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="bg-gray-900 text-white py-12">
+            <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center gap-2 mb-2"><i data-lucide="code-2" class="text-blue-500"></i><span class="text-xl font-bold">Incozent</span></div>
+                    <p class="text-sm text-gray-400">Empowering the next generation of tech leaders.</p>
+                </div>
+                <div class="flex flex-col md:flex-row gap-6 md:gap-8 text-center md:text-left">
+                    <a href="#" class="text-gray-400 hover:text-white transition">Privacy Policy</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">Terms of Service</a>
+                    <a href="#" onclick="openAdminLogin()" class="text-red-400 hover:text-red-300 border border-red-900 px-3 py-1 rounded transition text-sm hover:bg-red-900/50">Admin Portal</a>
+                </div>
+            </div>
+            <div class="text-center mt-8 text-gray-600 text-sm">© 2024 Incozent Technologies. All rights reserved.</div>
+        </footer>
+    </div>
+
+    <div id="app-view-container" class="view-section pt-20 flex-grow bg-gray-50 min-h-screen">
+        
+        <div id="apply-view" class="view-content hidden">
+            <div class="container mx-auto px-6 py-12">
+                <div class="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-lg animate-[slideUpFade_0.4s_ease-out]">
+                    <button onclick="showLandingPage()" class="mb-6 text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1 transition">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Home
+                    </button>
+                    <h2 class="text-2xl font-bold mb-6 text-center">Student Application Form</h2>
+                    <form onsubmit="handleApply(event)">
+                        <div class="space-y-4">
+                            <div><label class="block text-sm font-medium mb-1">Full Name</label><input type="text" id="applyName" required class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"></div>
+                            <div><label class="block text-sm font-medium mb-1">Email</label><input type="email" id="applyEmail" required class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"></div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Select Domain</label>
+                                <select id="applyDomain" class="w-full p-3 border rounded-lg outline-none transition focus:border-blue-500">
+                                    </select>
+                            </div>
+                            <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 mt-4 transition active:scale-95">Submit Application</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboard-view" class="view-content hidden">
+            <div class="container mx-auto px-6 py-12 animate-[slideUpFade_0.4s_ease-out]">
+                <div class="bg-white rounded-2xl shadow p-8 border border-gray-100">
+                    <div class="flex justify-between items-center mb-8">
+                        <div><h2 class="text-2xl font-bold">My Learning Path</h2><p class="text-gray-500 text-sm mt-1">Welcome back, <span class="font-bold text-gray-800">Student</span></p></div>
+                        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold animate-pulse">Active Intern</span>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="md:col-span-2 space-y-4">
+                            <div class="bg-gray-50 p-4 rounded-lg flex justify-between items-center transition hover:shadow-md">
+                                <div class="flex items-center gap-4"><div class="bg-green-500 text-white p-2 rounded-full"><i data-lucide="check"></i></div><span>Orientation Session</span></div>
+                                <button class="text-gray-400 text-sm" disabled>Completed</button>
+                            </div>
+                            <div class="bg-white border-l-4 border-blue-600 p-4 rounded-r-lg flex justify-between items-center shadow-sm transition hover:shadow-md transform hover:translate-x-1">
+                                <div class="flex items-center gap-4"><div class="bg-blue-600 text-white p-2 rounded-full"><i data-lucide="play"></i></div><span class="font-medium">Module 1: Fundamentals</span></div>
+                                <button class="bg-blue-600 text-white px-4 py-1 rounded text-sm hover:bg-blue-700 transition">Start</button>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 p-6 rounded-xl hover:shadow-lg transition">
+                            <h3 class="font-bold mb-4">Your Progress</h3>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2"><div class="bg-blue-600 h-2.5 rounded-full" style="width: 15%"></div></div>
+                            <p class="text-sm text-gray-600 text-right">15% Completed</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="profile-view" class="view-content hidden">
+            <div class="container mx-auto px-6 py-12 animate-[slideUpFade_0.4s_ease-out]">
+                <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow p-8">
+                    <div class="flex items-center gap-6 mb-8">
+                        <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center text-3xl font-bold text-blue-600 border-4 border-blue-50 animate-bounce">S</div>
+                        <div><h2 class="text-2xl font-bold">Student Name</h2><p class="text-gray-500">Computer Science • Batch 2025</p></div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="p-4 border rounded-lg hover:bg-gray-50 transition transform hover:-translate-y-1"><label class="block text-xs font-bold text-gray-400 uppercase tracking-wide">Email Address</label><p class="font-medium text-gray-800">student@college.edu</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="applied-view" class="view-content hidden">
+            <div class="container mx-auto px-6 py-12 animate-[slideUpFade_0.4s_ease-out]">
+                <h2 class="text-2xl font-bold mb-6">Applied Internships</h2>
+                <div class="bg-white rounded-xl shadow border border-gray-100 overflow-hidden">
+                    <div class="p-6 border-b flex justify-between items-center hover:bg-gray-50 transition duration-300">
+                        <div><h3 class="font-bold text-lg text-blue-600">Web Development Intern</h3><p class="text-sm text-gray-500">Application ID: #4492 • Applied on Nov 20, 2025</p></div>
+                        <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold border border-yellow-200">Under Review</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="completed-view" class="view-content hidden">
+            <div class="container mx-auto px-6 py-12 animate-[slideUpFade_0.4s_ease-out]">
+                <h2 class="text-2xl font-bold mb-6">Completed Internships</h2>
+                <div class="bg-white rounded-xl shadow border border-gray-100 p-12 text-center">
+                    <div class="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-400 animate-pulse"><i data-lucide="award" class="w-10 h-10"></i></div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">No Certificates Yet</h3>
+                    <p class="text-gray-500 mb-8 max-w-md mx-auto">You haven't completed any internships yet.</p>
+                    <button onclick="navigateToApp('dashboard')" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-500/30 transform hover:scale-105 active:scale-95">Go to Dashboard</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="admin-view" class="view-content hidden">
+            <div class="container mx-auto px-6 py-12 animate-[slideUpFade_0.4s_ease-out]">
+                <div class="flex justify-between items-end mb-6">
+                    <h2 class="text-2xl font-bold text-red-700">Admin Control Panel</h2>
+                </div>
+                <div class="bg-white rounded-xl shadow overflow-hidden border-t-4 border-red-600">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-50 border-b"><tr><th class="p-4">Name</th><th class="p-4">Email</th><th class="p-4">Domain</th><th class="p-4">Status</th><th class="p-4">Action</th></tr></thead>
+                        <tbody id="admin-table-body"></tbody>
+                    </table>
+                    <p id="no-apps" class="p-6 text-center text-gray-500 hidden">No new applications.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="studentLoginModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 modal-overlay" onclick="closeModals()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-8 w-full max-w-md z-10 animate-[slideUpFade_0.3s_ease-out]">
+            <div class="flex justify-between items-center mb-6">
+                <div><h3 class="text-2xl font-bold text-gray-900">Sign In / Sign Up</h3><p class="text-sm text-gray-500">Please login to continue application</p></div>
+                <button onclick="closeModals()" class="text-gray-400 hover:text-gray-600 transition hover:rotate-90"><i data-lucide="x"></i></button>
+            </div>
+            <form onsubmit="handleStudentLogin(event)">
+                <div class="space-y-4">
+                    <input type="email" id="loginEmail" value="student@college.edu" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" required>
+                    <input type="password" value="password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" required>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition transform active:scale-95">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="adminLoginModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 modal-overlay" onclick="closeModals()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-900 text-white rounded-xl shadow-2xl p-8 w-full max-w-md z-10 animate-[slideUpFade_0.3s_ease-out] border border-gray-700">
+            <div class="flex justify-between items-center mb-6">
+                <div><h3 class="text-2xl font-bold text-white">Admin Portal</h3><p class="text-sm text-gray-400">Restricted Access</p></div>
+                <button onclick="closeModals()" class="text-gray-400 hover:text-white transition hover:rotate-90"><i data-lucide="x"></i></button>
+            </div>
+            <form onsubmit="handleAdminLogin(event)">
+                <div class="space-y-4">
+                    <input type="email" value="admin@incozent.com" class="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-white transition" required>
+                    <input type="password" value="admin123" class="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-white transition" required>
+                    <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition transform active:scale-95">Access Panel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global list of internships (used for Display Cards AND Select Dropdown)
+        const internshipPrograms = [
+            { title: "Web Development", icon: "globe", desc: "React, Node.js, Tailwind" },
+            { title: "Data Science", icon: "database", desc: "Python, Pandas, ML" },
+            { title: "Cybersecurity", icon: "shield", desc: "Ethical Hacking, Network Security" },
+            { title: "AI & ML", icon: "cpu", desc: "TensorFlow, Neural Networks" },
+            { title: "Business Dev", icon: "briefcase", desc: "Sales, Marketing" },
+            { title: "Cloud Computing", icon: "cloud", desc: "AWS, Azure, Docker" },
+        ];
+
+        let applications = [
+            { id: 101, name: "Rahul Verma", email: "rahul@example.com", domain: "Web Dev", status: "Pending" }
+        ];
+        let currentUser = null;
+        let pendingNavigation = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            loadPrograms();
+            
+            // Scroll Reveal
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('active'); observer.unobserve(entry.target); }});
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+            document.addEventListener('click', function(event) {
+                const profileContainer = document.getElementById('nav-user-profile');
+                if (!profileContainer.contains(event.target)) document.getElementById('user-dropdown-menu').classList.add('hidden');
+            });
+        });
+
+        function showLandingPage() {
+            document.getElementById('landing-page-container').classList.add('active');
+            document.getElementById('app-view-container').classList.remove('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function navigateToApp(viewId) {
+            // Login Guard
+            if (viewId === 'apply' && !currentUser) {
+                pendingNavigation = 'apply'; 
+                openStudentLogin(); 
+                return; 
+            }
+
+            document.getElementById('user-dropdown-menu').classList.add('hidden');
+            document.getElementById('landing-page-container').classList.remove('active');
+            document.getElementById('app-view-container').classList.add('active');
+            document.querySelectorAll('.view-content').forEach(el => el.classList.add('hidden'));
+            
+            const viewMap = { 'apply': 'apply-view', 'dashboard': 'dashboard-view', 'profile': 'profile-view', 'applied': 'applied-view', 'completed': 'completed-view', 'admin': 'admin-view' };
+            const targetId = viewMap[viewId] || 'dashboard-view';
+            const target = document.getElementById(targetId);
+            if(target) { target.classList.remove('hidden'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        }
+
+        function toggleUserDropdown() { document.getElementById('user-dropdown-menu').classList.toggle('hidden'); }
+
+        function loadPrograms() {
+            // 1. Render Display Cards
+            const container = document.getElementById('programs-container');
+            container.innerHTML = internshipPrograms.map((p, i) => `
+                <div class="reveal bg-white p-8 rounded-xl border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:border-blue-200 group" style="transition-delay: ${i * 100}ms">
+                    <div class="bg-blue-50 w-14 h-14 rounded-xl flex items-center justify-center text-blue-600 mb-6 group-hover:bg-blue-600 group-hover:text-white transition duration-300"><i data-lucide="${p.icon}"></i></div>
+                    <h3 class="text-xl font-bold mb-3 group-hover:text-blue-600 transition">${p.title}</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">${p.desc}</p>
+                    <button onclick="navigateToApp('apply')" class="w-full py-3 border border-blue-600 text-blue-600 font-bold rounded-lg hover:bg-blue-600 hover:text-white transition active:scale-95">Apply Now</button>
+                </div>
+            `).join('');
+
+            // 2. Populate Dropdown in Apply Form (Dynamic)
+            const dropdown = document.getElementById('applyDomain');
+            dropdown.innerHTML = internshipPrograms.map(p => `
+                <option value="${p.title}">${p.title}</option>
+            `).join('');
+            
+            lucide.createIcons();
+        }
+
+        function openStudentLogin() { closeModals(); document.getElementById('studentLoginModal').classList.remove('hidden'); }
+        function openAdminLogin() { closeModals(); document.getElementById('adminLoginModal').classList.remove('hidden'); }
+        function closeModals() { document.getElementById('studentLoginModal').classList.add('hidden'); document.getElementById('adminLoginModal').classList.add('hidden'); }
+
+        function handleStudentLogin(e) {
+            e.preventDefault();
+            closeModals();
+            const email = document.getElementById('loginEmail').value;
+            const name = "Rahul Verma"; 
+            currentUser = { name, email, type: 'student' };
+            
+            document.getElementById('nav-signin-btn').classList.add('hidden');
+            document.getElementById('nav-user-profile').classList.remove('hidden');
+            document.getElementById('user-avatar-letter').innerText = name.charAt(0).toUpperCase();
+            document.getElementById('dropdown-name').innerText = name;
+            document.getElementById('dropdown-email').innerText = email;
+
+            if (pendingNavigation) { navigateToApp(pendingNavigation); pendingNavigation = null; } 
+            else { navigateToApp('dashboard'); }
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            closeModals();
+            currentUser = { name: "System Admin", email: "admin@incozent.com", type: 'admin' };
+            document.getElementById('nav-signin-btn').classList.add('hidden');
+            document.getElementById('nav-user-profile').classList.remove('hidden');
+            const avatar = document.getElementById('user-avatar-letter');
+            avatar.innerText = "A";
+            avatar.classList.add('bg-red-100', 'text-red-600', 'border-red-200');
+            document.getElementById('dropdown-name').innerText = "System Admin";
+            document.getElementById('dropdown-email').innerText = "admin@incozent.com";
+            renderAdminTable();
+            navigateToApp('admin');
+        }
+
+        function logout() {
+            currentUser = null;
+            pendingNavigation = null;
+            document.getElementById('user-dropdown-menu').classList.add('hidden');
+            document.getElementById('nav-user-profile').classList.add('hidden');
+            document.getElementById('nav-signin-btn').classList.remove('hidden');
+            document.getElementById('user-avatar-letter').classList.remove('bg-red-100', 'text-red-600', 'border-red-200');
+            showLandingPage();
+        }
+
+        function handleApply(e) {
+            e.preventDefault();
+            const name = document.getElementById('applyName').value;
+            applications.push({ id: Math.floor(Math.random() * 1000), name, email: document.getElementById('applyEmail').value, domain: document.getElementById('applyDomain').value, status: "Pending" });
+            alert("Application Submitted Successfully!");
+            navigateToApp('applied');
+        }
+
+        function renderAdminTable() {
+            const tbody = document.getElementById('admin-table-body');
+            const noAppsMsg = document.getElementById('no-apps');
+            if(applications.length === 0) { noAppsMsg.classList.remove('hidden'); tbody.innerHTML = ''; return; }
+            noAppsMsg.classList.add('hidden');
+            tbody.innerHTML = applications.map(app => `
+                <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
+                    <td class="p-4 font-medium">${app.name}</td><td class="p-4 text-gray-500 text-sm">${app.email}</td>
+                    <td class="p-4 text-blue-600 text-sm">${app.domain}</td>
+                    <td class="p-4"><span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-bold">${app.status}</span></td>
+                    <td class="p-4"><button class="text-green-600 font-bold text-xs hover:underline mr-2">Approve</button><button class="text-red-600 font-bold text-xs hover:underline">Reject</button></td>
+                </tr>`).join('');
+        }
+    </script>
+</body>
+</html>
