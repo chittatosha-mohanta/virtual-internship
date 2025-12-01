@@ -9,6 +9,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+       (function(){
+          // Initialize EmailJS
+          // TODO: Replace with your actual Public Key from EmailJS Account
+          emailjs.init("umkbPHypTatki_Uvc");
+       })();
+    </script>
+
     <style>
         body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
         
@@ -210,19 +219,29 @@
                             <div class="space-y-6">
                                 <a href="mailto:support@incozent.com" class="flex items-center gap-4 hover:translate-x-2 transition duration-300 group">
                                     <i data-lucide="mail" class="text-blue-400 group-hover:text-white transition"></i>
-                                    <span class="group-hover:text-blue-200 transition">support@incozent.com</span>
+                                    <span class="group-hover:text-blue-200 transition">incozenttechnologies@gmail.com</span>
                                 </a>
-                                <div class="flex items-center gap-4 hover:translate-x-2 transition duration-300"><i data-lucide="phone" class="text-blue-400"></i><span>+91 98765 43210</span></div>
+                                <!-- <div class="flex items-center gap-4 hover:translate-x-2 transition duration-300"><i data-lucide="phone" class="text-blue-400"></i><span>+91 98765 43210</span></div> -->
                                 <div class="flex items-center gap-4 hover:translate-x-2 transition duration-300"><i data-lucide="map-pin" class="text-blue-400"></i><span>Cyber City, Hyderabad</span></div>
                             </div>
                         </div>
                     </div>
+                    
                     <div class="p-12 md:w-3/5">
-                        <form onsubmit="event.preventDefault(); alert('Message sent!');">
-                            <div class="mb-6 group"><label class="block text-sm font-bold text-gray-700 mb-2">Name</label><input type="text" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="John Doe"></div>
-                            <div class="mb-6 group"><label class="block text-sm font-bold text-gray-700 mb-2">Email</label><input type="email" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="john@example.com"></div>
-                            <div class="mb-6 group"><label class="block text-sm font-bold text-gray-700 mb-2">Message</label><textarea rows="3" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="How can we help?"></textarea></div>
-                            <button class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 active:scale-95 transition">Send Message</button>
+                        <form onsubmit="handleContactSubmit(event)">
+                            <div class="mb-6 group">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Name</label>
+                                <input type="text" id="contact-name" required class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="John Doe">
+                            </div>
+                            <div class="mb-6 group">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Email</label>
+                                <input type="email" id="contact-email" required class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="john@example.com">
+                            </div>
+                            <div class="mb-6 group">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Message</label>
+                                <textarea rows="3" id="contact-message" required class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="How can we help?"></textarea>
+                            </div>
+                            <button id="contact-btn" type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 active:scale-95 transition">Send Message</button>
                         </form>
                     </div>
                 </div>
@@ -309,7 +328,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Navigate without Login
+        // Navigate to Application
         function navigateToApp(viewId, prefillDomain = null) {
             document.getElementById('landing-page-container').classList.remove('active');
             document.getElementById('app-view-container').classList.add('active');
@@ -349,8 +368,47 @@
 
         function handleApply(e) {
             e.preventDefault();
-            // In a real app, you would send data to backend here
-            navigateToApp('applied'); // Show Success View
+            // Show Success View
+            navigateToApp('applied');
+        }
+
+        // --- EMAIL JS CONTACT FUNCTION ---
+        function handleContactSubmit(e) {
+            e.preventDefault();
+        
+            // 1. Get values
+            const name = document.getElementById('contact-name').value;
+            const email = document.getElementById('contact-email').value;
+            const message = document.getElementById('contact-message').value;
+            const btn = document.getElementById('contact-btn');
+
+            // 2. Change button text to show loading
+            const originalText = btn.innerText;
+            btn.innerText = "Sending...";
+            btn.disabled = true;
+
+            // 3. Send via EmailJS
+            // REMINDER: Replace with your actual ID strings from EmailJS
+            emailjs.send("service_qsqqg98", "template_8sqz36d", {
+                from_name: name,
+                from_email: email,
+                message: message,
+                reply_to: email, 
+            })
+            .then(function() {
+                alert("Message Sent! We will contact you shortly.");
+                document.getElementById('contact-name').value = "";
+                document.getElementById('contact-email').value = "";
+                document.getElementById('contact-message').value = "";
+            
+                btn.innerText = "Message Sent";
+                setTimeout(() => { btn.innerText = originalText; btn.disabled = false; }, 3000);
+            }, function(error) {
+                alert("Failed to send message. Please try again or email us directly.");
+                console.error("EmailJS Error:", error);
+                btn.innerText = originalText;
+                btn.disabled = false;
+            });
         }
     </script>
 </body>
